@@ -6,14 +6,13 @@ import java.util.Scanner;
 public class Multitable {
     public static void main(String[] args) {
 
-        String userInput;
         int tableSize;
 
         System.out.println("введите размер таблицы");
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            userInput = scanner.nextLine();
+            String userInput = scanner.nextLine();
             try {
                 tableSize = Integer.parseInt(userInput);
             } catch (NumberFormatException e) {
@@ -33,10 +32,9 @@ public class Multitable {
 
     private static void printTable(int tableSize, int cellSize) {
 
-        int value;
         for (int i = 1; i <= tableSize; i++) {
             for (int j = 1; j <= (tableSize - 1); j++) {
-                value = i * j;
+                int value = i * j;
                 System.out.printf("%" + cellSize + "d|", value);
             }
             System.out.printf("%" + cellSize + "d\n", (i * tableSize));
