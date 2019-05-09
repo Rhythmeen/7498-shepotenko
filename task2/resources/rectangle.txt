@@ -1,0 +1,2 @@
+RECTANGLE
+5 10
