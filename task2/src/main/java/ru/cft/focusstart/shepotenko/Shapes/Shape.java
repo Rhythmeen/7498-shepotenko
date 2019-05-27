@@ -1,14 +1,8 @@
 package ru.cft.focusstart.shepotenko.Shapes;
 
+import java.util.ArrayList;
+
 public abstract class Shape {
 
-    protected String name;
-    protected double area;
-    protected double perimeter;
-
-    protected abstract double calcPerimeter();
-
-    protected abstract double calcArea();
-
-    public abstract String getInfo();
+    public abstract StringBuilder getInfo();
 }

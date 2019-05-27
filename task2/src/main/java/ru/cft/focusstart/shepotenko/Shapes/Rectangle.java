@@ -1,17 +1,20 @@
 package ru.cft.focusstart.shepotenko.Shapes;
 
-import ru.cft.focusstart.shepotenko.ShapeException;
+import ru.cft.focusstart.shepotenko.AppException;
 
 public class Rectangle extends Shape {
 
+    private String name;
+    private double area;
+    private double perimeter;
     private double length;
     private double width;
     private double diagonalLength;
 
-    public Rectangle(double param1, double param2) throws ShapeException {
+    public Rectangle(double param1, double param2) throws AppException {
         this.name = "прямоугольник";
         if (param1 <= 0 || param2 <= 0) {
-            throw new ShapeException("Invalid input data. Parameters must be positive.");
+            throw new AppException("Invalid input data. Parameters must be positive.");
         }
 
         if (param1 < param2) {
@@ -28,12 +31,25 @@ public class Rectangle extends Shape {
     }
 
     @Override
-    protected double calcArea() {
+    public StringBuilder getInfo() {
+        StringBuilder info = new StringBuilder();
+
+        info.append(String.format("Тип фигуры:      %s\n", name));
+        info.append(String.format("Длина:           %.2f\n", length));
+        info.append(String.format("Ширина:          %.2f\n", width));
+        info.append(String.format("Длина диагонали: %.2f\n", diagonalLength));
+        info.append(String.format("Периметр:        %.2f\n", perimeter));
+        info.append(String.format("Площадь:         %.2f\n", area));
+
+
+        return info;
+    }
+
+    private double calcArea() {
         return length * width;
     }
 
-    @Override
-    protected double calcPerimeter() {
+    private double calcPerimeter() {
         return (length + width) * 2;
     }
 
@@ -41,15 +57,5 @@ public class Rectangle extends Shape {
         return Math.sqrt(length * length + width * width);
     }
 
-    @Override
-    public String getInfo() {
-
-        return String.format("Тип фигуры:      %s\n", name) +
-                String.format("Длина:           %.2f\n", length) +
-                String.format("Ширина:          %.2f\n", width) +
-                String.format("Длина диагонали: %.2f\n", diagonalLength) +
-                String.format("Периметр:        %.2f\n", perimeter) +
-                String.format("Площадь:         %.2f\n", area);
-    }
 }
 
