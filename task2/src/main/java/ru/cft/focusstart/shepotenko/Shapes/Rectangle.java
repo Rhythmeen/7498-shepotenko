@@ -3,17 +3,15 @@ package ru.cft.focusstart.shepotenko.Shapes;
 import ru.cft.focusstart.shepotenko.ShapeException;
 
 public class Rectangle extends Shape {
-
     private double length;
     private double width;
     private double diagonalLength;
 
     public Rectangle(double param1, double param2) throws ShapeException {
-        this.name = "прямоугольник";
+        this.name = ShapeType.RECTANGLE.getName();
         if (param1 <= 0 || param2 <= 0) {
             throw new ShapeException("Invalid input data. Parameters must be positive.");
         }
-
         if (param1 < param2) {
             this.width = param1;
             this.length = param2;
@@ -21,7 +19,6 @@ public class Rectangle extends Shape {
             this.length = param1;
             this.width = param2;
         }
-
         this.area = calcArea();
         this.perimeter = calcPerimeter();
         this.diagonalLength = calcDiagonalLength();
@@ -43,7 +40,6 @@ public class Rectangle extends Shape {
 
     @Override
     public String getInfo() {
-
         return String.format("Тип фигуры:      %s\n", name) +
                 String.format("Длина:           %.2f\n", length) +
                 String.format("Ширина:          %.2f\n", width) +

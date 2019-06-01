@@ -3,7 +3,6 @@ package ru.cft.focusstart.shepotenko.Shapes;
 import ru.cft.focusstart.shepotenko.ShapeException;
 
 public class Triangle extends Shape {
-
     private double sideA;
     private double sideB;
     private double sideC;
@@ -18,7 +17,7 @@ public class Triangle extends Shape {
         if (sideA >= sideB + sideC || sideB >= sideA + sideC || sideC >= sideA + sideB) {
             throw new ShapeException("Invalid input data.\nEach side of the triangle must be less than the sum of the other two");
         }
-        this.name = "треугольник";
+        this.name = ShapeType.TRIANGLE.getName();
         this.sideA = sideA;
         this.sideB = sideB;
         this.sideC = sideC;
@@ -28,9 +27,9 @@ public class Triangle extends Shape {
         this.oppositeAngleB = calcOppositeAngle(sideB, sideA, sideC);
         this.oppositeAngleC = calcOppositeAngle(sideC, sideA, sideB);
     }
+
     @Override
     protected double calcPerimeter() {
-
         return sideA + sideB + sideC;
     }
 
@@ -41,13 +40,11 @@ public class Triangle extends Shape {
     }
 
     private double calcOppositeAngle(double oppositeSide, double side1, double side2) {
-
         return Math.toDegrees(Math.acos(((side1 * side1) + (side2 * side2) - (oppositeSide * oppositeSide)) / (2 * side1 * side2)));
     }
 
     @Override
     public String getInfo() {
-
         String info = String.format("Тип фигуры:                      %s\n", name) +
                 String.format("Cторона а и противолежащий угол: %.2f  %.1f\n", sideA, oppositeAngleA) +
                 String.format("Cторона b и противолежащий угол: %.2f  %.1f\n", sideB, oppositeAngleB) +
@@ -56,8 +53,6 @@ public class Triangle extends Shape {
                 String.format("Периметр:                        %.2f\n", perimeter);
         return info;
     }
-
-
 }
 
 

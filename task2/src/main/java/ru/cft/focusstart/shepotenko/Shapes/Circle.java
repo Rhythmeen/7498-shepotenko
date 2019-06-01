@@ -3,12 +3,11 @@ package ru.cft.focusstart.shepotenko.Shapes;
 import ru.cft.focusstart.shepotenko.ShapeException;
 
 public class Circle extends Shape {
-
     private double radius;
     private double diameter;
 
     public Circle(double radius) throws ShapeException {
-        this.name = "круг";
+        this.name = ShapeType.CIRCLE.getName();
         if (radius <= 0) {
             throw new ShapeException("Invalid input data. Parameters must be positive.");
         }
@@ -32,11 +31,8 @@ public class Circle extends Shape {
         return diameter = radius * 2;
     }
 
-
-
     @Override
     public String getInfo() {
-
         return String.format("Тип фигуры: %s\n", name) +
                 String.format("Радиус:     %.2f\n", radius) +
                 String.format("Диаметр:    %.2f\n", diameter) +
