@@ -9,6 +9,7 @@ public class Model {
     private int amountOfBombs;
     private Cell[] gameGrid;
     private boolean isGameGridEmpty;
+    private int unMarkedBombCounter;
 
 
     public Model(int gridWidth, int gridLength, int amountOfBombs) {
@@ -17,6 +18,7 @@ public class Model {
         this.amountOfBombs = amountOfBombs;
         this.gameGrid = generateEmptyGameGrid(gridWidth, gridLength);
         this.isGameGridEmpty = true;
+        this.unMarkedBombCounter = amountOfBombs;
 
     }
 
@@ -102,22 +104,22 @@ public class Model {
         return cellsAround;
     }
 
-    public void openCell(int cellAddress) {
-        gameGrid[cellAddress].setState(1);
+    public void setCellsState(int cellAddress, int state) {
+        gameGrid[cellAddress].setState(state);
     }
 
-    public void flagCell (int cellAddress) {
-        gameGrid[cellAddress].setState(2);
+    public  int getCellsState(int cellAddress) {
+        return gameGrid[cellAddress].getState();
     }
 
-    public void questionCell (int cellAddress) {
-        gameGrid[cellAddress].setState(3);
+    public int getCellInnerValue(int cellAddress) {
+        return gameGrid[cellAddress].getInnerValue();
     }
 
-    public void closeCell (int cellAddress) {
-        gameGrid[cellAddress].setState(0);
-    }
 
+    public ArrayList<Integer> getCellsAround (int cellAddress) {
+        return gameGrid[cellAddress].getCellsAround();
+    }
     //TODO наверное стоит запилить геттеры полей  ячеек через модель, а то выглядит оч ебано геттинг в контроллере
 
 }

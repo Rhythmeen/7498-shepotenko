@@ -2,7 +2,6 @@ package ru.cft.focusstart.shepotenko;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 
 public class Controller {
     private Model model;
@@ -13,54 +12,62 @@ public class Controller {
     }
 
     public void leftClick(int cellAddress) {
-        if (model.getIsGameGridEmpty()) {
-            model.gameGridInit(cellAddress);
-        }
-        //ультракудрявый алгоритм, открывает область пустых клеток. надо попробовать порефакторить.
-        if (model.getGameGrid()[cellAddress].getInnerValue() == 0 && model.getGameGrid()[cellAddress].getState() == 0) {
-            HashSet<Integer> emptyArea = new HashSet<>();
-            ArrayList<Integer> findingEmptyArea = new ArrayList<>();
-            findingEmptyArea.add(cellAddress);
-            while (findingEmptyArea.size() > 0) {
-                ArrayList<Integer> emptyClosedCellsAround = getEmptyClosedCellsAround(findingEmptyArea.get(0));
-                for (int i: emptyClosedCellsAround) {
-                    findingEmptyArea.add(i);
+        if (model.getCellsState(cellAddress) != 0) {
+            return;
+        } else {
+            if (model.getIsGameGridEmpty()) {
+                model.gameGridInit(cellAddress);
+            }
+            //ультракудрявый алгоритм, открывает область пустых клеток. надо попробовать порефакторить.
+            if (model.getCellInnerValue(cellAddress) == 0 && model.getCellsState(cellAddress) == 0) {
+                HashSet<Integer> emptyArea = new HashSet<>();
+                ArrayList<Integer> findingEmptyArea = new ArrayList<>();
+                findingEmptyArea.add(cellAddress);
+                while (findingEmptyArea.size() > 0) {
+                    ArrayList<Integer> emptyClosedCellsAround = getEmptyClosedCellsAround(findingEmptyArea.get(0));
+                    for (int i : emptyClosedCellsAround) {
+                        findingEmptyArea.add(i);
+                    }
+                    emptyArea.add(findingEmptyArea.get(0));
+                    model.setCellsState(findingEmptyArea.get(0), 1);
+                    findingEmptyArea.remove(0);
+                }
+                HashSet<Integer> cellsToOpen = new HashSet<>();
+                for (int i : emptyArea) {
+                    for (int j : model.getGameGrid()[i].getCellsAround())
+                        cellsToOpen.add(j);
+                }
+                for (int i : cellsToOpen) {
+                    model.setCellsState(i, 1);
                 }
 
-                emptyArea.add(findingEmptyArea.get(0));
-                model.openCell(findingEmptyArea.get(0));
-                findingEmptyArea.remove(0);
             }
-            HashSet<Integer> cellsToOpen = new HashSet<>();
-            for (int i: emptyArea) {
-                for (int j: model.getGameGrid()[i].getCellsAround())
-                    cellsToOpen.add(j);
+            if (model.getCellInnerValue(cellAddress) != 0) {
+                model.setCellsState(cellAddress, 1);
             }
-            for (int i: cellsToOpen) {
-                model.openCell(i);
-            }
-
-        }
-        if (model.getGameGrid()[cellAddress].getInnerValue() !=0) {
-            model.openCell(cellAddress);
         }
     }
 
     public void rightClick(int cellAddress) {
-        switch (model.getGameGrid()[cellAddress].getState()){
+        switch (model.getCellsState(cellAddress)) {
             case 0:
-                model.flagCell(cellAddress);
+                model.setCellsState(cellAddress, 2);
                 break;
             case 2:
-                model.questionCell(cellAddress);
+                model.setCellsState(cellAddress, 3);
+                break;
             case 3:
-                model.closeCell(cellAddress);
+                model.setCellsState(cellAddress, 0);
+                break;
         }
 
     }
-//TODO метод должен открывать все ячейки вокруг, если количество флажков соответсвует кол-ву бомб
+
+
+
+    //TODO метод должен открывать все ячейки вокруг, если количество флажков соответсвует кол-ву бомб
     public void bothClick(int cellAddress) {
-        model.openCell(cellAddress);
+
     }
 
     private ArrayList<Integer> getEmptyClosedCellsAround(int CellAddress) {
@@ -74,8 +81,10 @@ public class Controller {
     }
 }
 
-/** открывает одну клетку*/
-// if (model.getGameGrid()[cellAddress].getInnerValue() == 0 && model.getGameGrid()[cellAddress].getState() == 0) {
+/**
+ * открывает одну клеткуоткрывает только пустую область
+ */
+// if (model.getGameGrid()[cellAddress].getCellInnerValue() == 0 && model.getGameGrid()[cellAddress].getCellsState() == 0) {
 //         ArrayList<Integer> cellsToOpen = new ArrayList<>();
 //        cellsToOpen.add(cellAddress);
 //        while (cellsToOpen.size() > 0) {
@@ -83,12 +92,12 @@ public class Controller {
 //        for (int i: emptyClosedCellsAround) {
 //        cellsToOpen.add(i);
 //        }
-//        model.openCell(cellAddress);
+//        model.setCellsState(cellAddress);
 //        cellsToOpen.remove(0);
 //        }
 
 /**открывает только пустую область*/
-//        if (model.getGameGrid()[cellAddress].getInnerValue() == 0 && model.getGameGrid()[cellAddress].getState() == 0) {
+//        if (model.getGameGrid()[cellAddress].getCellInnerValue() == 0 && model.getGameGrid()[cellAddress].getCellsState() == 0) {
 //            ArrayList<Integer> cellsToOpen = new ArrayList<>();
 //            cellsToOpen.add(cellAddress);
 //            while (cellsToOpen.size() > 0) {
@@ -96,7 +105,7 @@ public class Controller {
 //                for (int i: emptyClosedCellsAround) {
 //                    cellsToOpen.add(i);
 //                }
-//                model.openCell(cellsToOpen.get(0));
+//                model.setCellsState(cellsToOpen.get(0));
 //                cellsToOpen.remove(0);
 //            }
 //        }

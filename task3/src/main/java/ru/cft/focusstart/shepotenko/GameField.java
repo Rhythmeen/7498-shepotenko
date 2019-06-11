@@ -2,6 +2,9 @@ package ru.cft.focusstart.shepotenko;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 public class GameField extends JPanel {
     private Model model;
@@ -20,17 +23,25 @@ public class GameField extends JPanel {
     private JButton[] generateButtons(int amountOfButtons) {
         JButton[] buttons = new JButton[amountOfButtons];
         for (int i = 0; i < buttons.length; i++) {
-            JButton b = new JButton();
-            buttons[i] = b;
+            JButton button = new JButton();
+            buttons[i] = button;
             //TODO выставить фиксированный размер ячейки
-            b.setPreferredSize(new Dimension(10, 10));
-            b.setIcon(MinesweeperWindow.icons.get(12));
+            button.setPreferredSize(new Dimension(10, 10));
+            button.setIcon(MinesweeperWindow.icons.get(12));
             int buttonIndex = i;
-            b.addActionListener(e -> {
-                controller.leftClick(buttonIndex);
-                updateGameField();
+            button.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseReleased(MouseEvent e) {
+                    if (SwingUtilities.isLeftMouseButton(e)) {
+                        controller.leftClick(buttonIndex);
+                    }
+                    if (SwingUtilities.isRightMouseButton(e) ) {
+                        controller.rightClick(buttonIndex);
+                    }
+                    //TODO клик двумя кнопками
+                    updateGameField();
+                }
             });
-
         }
         return buttons;
     }
@@ -56,4 +67,7 @@ public class GameField extends JPanel {
     }
 }
 
-
+//            b.addActionListener(e -> {
+//                    controller.leftClick(buttonIndex);
+//                    updateGameField();
+//                    });
