@@ -1,17 +1,14 @@
 package ru.cft.focusstart.shepotenko;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Cell {
-    private int innerValue; //0 - пустая клетка, 1-8 - цифры, 9 - бомба
-    private int outerValue; //0 - пусто, 1 -флаг, 2 - вопрос
-    private boolean isOpened;
-    private HashSet<Coordinate> cellsAround;
+    private int innerValue; //0 - пустая клетка, 1-8 - цифры, 9 - взорвался, 10 - бомба 11 - бомбы нет, ошибка.
+    private int state;      //0 - закрыто, 1- открыто, 2 - флаг, 3 - вопрос
+    private ArrayList<Integer> CellsAround;
 
-    public Cell() {}
-
-    public void setCellsAround(HashSet<Coordinate> cellsAround) {
-        this.cellsAround = cellsAround;
+    public Cell() {
     }
 
     public void setInnerValue(int innerValue) {
@@ -22,8 +19,19 @@ public class Cell {
         return innerValue;
     }
 
-    @Override
-    public String toString() {
-        return Integer.toString(innerValue);
+    public void setState(int state) {
+        this.state = state;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public ArrayList<Integer> getCellsAround() {
+        return CellsAround;
+    }
+
+    public void setCellsAround(ArrayList<Integer> cellsAround) {
+        CellsAround = cellsAround;
     }
 }
