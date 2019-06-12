@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 public class GameField extends JPanel {
     private Model model;
@@ -38,22 +37,23 @@ public class GameField extends JPanel {
                     if (SwingUtilities.isRightMouseButton(e) ) {
                         controller.rightClick(buttonIndex);
                     }
-                    //TODO клик двумя кнопками
-                    updateGameField();
+                    if (SwingUtilities.isMiddleMouseButton(e)) {
+                        controller.middleClick(buttonIndex);
+                    }
                 }
             });
         }
         return buttons;
     }
 
-    private void updateGameField() {
+    public void updateGameField() {
         for (int i = 0; i < model.getGridLength() * model.getGridWidth(); i++) {
-            switch (model.getGameGrid()[i].getState()) {
+            switch (model.getCellsState(i)) {
                 case 0:
                     buttons[i].setIcon(MinesweeperWindow.icons.get(12));
                     break;
                 case 1:
-                    buttons[i].setIcon(MinesweeperWindow.icons.get(model.getGameGrid()[i].getInnerValue()));
+                    buttons[i].setIcon(MinesweeperWindow.icons.get(model.getCellInnerValue(i)));
                     break;
                 case 2:
                     buttons[i].setIcon(MinesweeperWindow.icons.get(13));
