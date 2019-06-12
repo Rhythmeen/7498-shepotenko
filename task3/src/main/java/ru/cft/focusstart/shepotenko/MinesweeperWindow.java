@@ -18,8 +18,8 @@ public class MinesweeperWindow extends JFrame {
         icons.put(6, new ImageIcon(MainClass.class.getResource("/icons/six.png")));
         icons.put(7, new ImageIcon(MainClass.class.getResource("/icons/seven.png")));
         icons.put(8, new ImageIcon(MainClass.class.getResource("/icons/eight.png")));
-        icons.put(9, new ImageIcon(MainClass.class.getResource("/icons/mined.png")));
-        icons.put(10, new ImageIcon(MainClass.class.getResource("/icons/mine.png")));
+        icons.put(9, new ImageIcon(MainClass.class.getResource("/icons/mine.png")));
+        icons.put(10, new ImageIcon(MainClass.class.getResource("/icons/mined.png")));
         icons.put(11, new ImageIcon(MainClass.class.getResource("/icons/no_mine.png")));
         icons.put(12, new ImageIcon(MainClass.class.getResource("/icons/closed.png")));
         icons.put(13, new ImageIcon(MainClass.class.getResource("/icons/flag.png")));
@@ -36,15 +36,35 @@ public class MinesweeperWindow extends JFrame {
         setIconImage(icons.get(15).getImage());
         setTitle("Caпер");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new Dimension(500, 500));
-        Model model = new Model(10, 10, 20);
-        Controller controller = new Controller(model);
-        GameField gameField = new GameField(model, controller);
-        add(gameField);
+        setLayout(new BorderLayout());
 
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+        JMenu menu = new JMenu("Меню");
+        menuBar.add(menu);
+
+        JMenuItem newGame = new JMenuItem("Новая игра");
+        JMenuItem difficulty = new JMenuItem("Уровень сложности");
+        JMenuItem recordBoard = new JMenuItem("Рекорды");
+        menu.add(newGame);
+        menu.add(difficulty);
+        menu.add(recordBoard);
+
+
+
+        GameField gameField = new GameField(new Game(16,16,20));
+
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
+        JButton button = new JButton();
+        button.setPreferredSize(new Dimension(50,50));
+        panel.add(button);
+
+        add(panel,BorderLayout.NORTH);
+        add(gameField, BorderLayout.SOUTH);
         pack();
     }
-
 
 
 }

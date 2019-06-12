@@ -1,14 +1,13 @@
 package ru.cft.focusstart.shepotenko;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import ru.cft.focusstart.shepotenko.Model.Model;
 
-public class Controller {
-    private Model model;
+public class Game {
+    public Model model;
 
 
-    public Controller(Model model) {
-        this.model = model;
+    public Game(int gridWidth, int gridLength, int amountOfBombs) {
+        this.model = new Model(gridWidth, gridLength, amountOfBombs);
     }
 
     public void leftClick(int cellAddress) {
@@ -50,5 +49,23 @@ public class Controller {
                 }
             }
         }
+    }
+
+
+
+    public int getCellsState (int CellAddress) {
+        return model.getCellsState(CellAddress);
+    }
+
+    public int getCellsInnerValue(int CellAddress) {
+        return model.getCellInnerValue(CellAddress);
+    }
+
+    public int getWidth() {
+        return model.getWidth();
+    }
+
+    public int getLength() {
+        return model.getLength();
     }
 }
