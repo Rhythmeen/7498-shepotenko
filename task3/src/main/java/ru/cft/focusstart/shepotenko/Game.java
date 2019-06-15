@@ -6,8 +6,8 @@ public class Game {
     public Model model;
 
 
-    public Game(int gridWidth, int gridLength, int amountOfBombs) {
-        this.model = new Model(gridWidth, gridLength, amountOfBombs);
+    public Game(int gridWidth, int gridLength, int amountOfBombs, GameStateObserver observer) {
+        this.model = new Model(gridWidth, gridLength, amountOfBombs, observer);
     }
 
     public void leftClick(int cellAddress) {
@@ -31,7 +31,7 @@ public class Game {
         }
     }
 
-    //TODO метод открывает все ячейки вокруг, если количество флажков соответсвует кол-ву бомб
+
     public void middleClick(int cellAddress) {
         if (model.getCellInnerValue(cellAddress) > 0 && model.getCellInnerValue(cellAddress) < 9) {
             int flagsAround = 0;
@@ -53,6 +53,8 @@ public class Game {
 
 
 
+
+
     public int getCellsState (int CellAddress) {
         return model.getCellsState(CellAddress);
     }
@@ -68,4 +70,5 @@ public class Game {
     public int getLength() {
         return model.getLength();
     }
+
 }

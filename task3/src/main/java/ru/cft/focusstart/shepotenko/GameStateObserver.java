@@ -1,7 +1,8 @@
 package ru.cft.focusstart.shepotenko;
 
-public interface IgameStateObserver {
-    void GameStarted();
-    void Win();
-    void Loose();
+public interface GameStateObserver {
+    void gameStarted();
+    void win();
+    void loose();
+    void changeUnmarkedBombsCounter();
 }

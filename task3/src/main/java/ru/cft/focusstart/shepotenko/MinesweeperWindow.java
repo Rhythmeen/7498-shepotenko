@@ -2,10 +2,16 @@ package ru.cft.focusstart.shepotenko;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Scanner;
 
-public class MinesweeperWindow extends JFrame {
+public class MinesweeperWindow extends JFrame implements GameStateObserver {
     public static HashMap<Integer, ImageIcon> icons = fillIconsMap();
+    private GameField gameField;
 
     private static HashMap<Integer, ImageIcon> fillIconsMap() {
         HashMap<Integer, ImageIcon> icons = new HashMap<>();
@@ -43,27 +49,108 @@ public class MinesweeperWindow extends JFrame {
         JMenu menu = new JMenu("Меню");
         menuBar.add(menu);
 
-        JMenuItem newGame = new JMenuItem("Новая игра");
-        JMenuItem difficulty = new JMenuItem("Уровень сложности");
-        JMenuItem recordBoard = new JMenuItem("Рекорды");
-        menu.add(newGame);
-        menu.add(difficulty);
-        menu.add(recordBoard);
+        JMenuItem newGameItem = new JMenuItem("Новая игра");
+        JMenuItem recordBoardItem = new JMenuItem("Рекорды");
+        JMenuItem difficultyItem = new JMenuItem("Уровень сложности");
+        newGameItem.addActionListener(e -> newGame(gameField.getDifficculty()));
+        difficultyItem.addActionListener(e -> {
+            JDialog dialog = generateDifficultyDialogFrame();
+            dialog.setVisible(true);
+        });
 
 
-
-        GameField gameField = new GameField(new Game(16,16,20));
-
+        menu.add(newGameItem);
+        menu.add(difficultyItem);
+        menu.add(recordBoardItem);
 
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
-        JButton button = new JButton();
-        button.setPreferredSize(new Dimension(50,50));
-        panel.add(button);
+        JButton smileButton = new JButton();
+        smileButton.setPreferredSize(new Dimension(50, 50));
+        panel.add(smileButton);
+        smileButton.addActionListener(e -> newGame(gameField.getDifficculty()));
 
-        add(panel,BorderLayout.NORTH);
-        add(gameField, BorderLayout.SOUTH);
+        add(panel, BorderLayout.NORTH);
+
+        newGame(Difficulty.EASY);
         pack();
+
+
+
+    }
+
+
+    private void newGame(Difficulty dif) {
+        if (gameField != null) {
+            remove(gameField);
+        }
+        gameField = new GameField(dif, this);
+        add(gameField, BorderLayout.SOUTH);
+        revalidate();
+        pack();
+        }
+
+    public JDialog generateDifficultyDialogFrame() {
+        JDialog dialog = new JDialog(this, "Уровень сложности", true);
+        dialog.setSize(new Dimension(200, 200));
+        dialog.setResizable(false);
+        dialog.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        dialog.setLocationRelativeTo(gameField);
+
+        JRadioButton easy = new JRadioButton("новичек (9x9)");
+        JRadioButton normal = new JRadioButton("любитель 16х16");
+        JRadioButton hard = new JRadioButton("профессионал 16х30");
+        JButton button = new JButton("Новая игра");
+        ButtonGroup group = new ButtonGroup();
+        group.add(easy);
+        group.add(normal);
+        group.add(hard);
+
+        dialog.setLayout(new BorderLayout());
+        JPanel panel = new JPanel(new GridLayout(4,1));
+        panel.setPreferredSize(new Dimension(200,200));
+        panel.add(easy);
+        panel.add(normal);
+        panel.add(hard);
+        panel.add(button);
+        dialog.add(panel,BorderLayout.WEST);
+
+        easy.addActionListener(a -> {
+            button.addActionListener(e ->{
+                newGame(Difficulty.EASY);
+                dialog.dispose();
+        });});
+        normal.addActionListener(b -> {
+            button.addActionListener(e ->{
+                newGame(Difficulty.NORMAL);
+                dialog.dispose();
+        });});
+        hard.addActionListener(c -> {
+            button.addActionListener(e -> {
+                newGame(Difficulty.HARD);
+                dialog.dispose();
+            });});
+            return dialog;
+        }
+
+    @Override
+    public void gameStarted() {
+        System.out.println("пп");
+    }
+
+    @Override
+    public void win() {
+        System.out.println("пп");
+    }
+
+    @Override
+    public void loose() {
+        gameField.blockButtons();
+    }
+
+    @Override
+    public void changeUnmarkedBombsCounter() {
+
     }
 
 

@@ -9,7 +9,7 @@ import java.util.HashSet;
 public class MainClass {
 
     public static void main(String[] args) {
-         new MinesweeperWindow();
+         MinesweeperWindow minesweeperWindow = new MinesweeperWindow();
     }
 }
 

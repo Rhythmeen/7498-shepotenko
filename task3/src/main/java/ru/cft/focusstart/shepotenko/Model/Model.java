@@ -1,6 +1,9 @@
 package ru.cft.focusstart.shepotenko.Model;
 
 
+import ru.cft.focusstart.shepotenko.GameStateObserver;
+
+
 import java.util.*;
 
 public class Model {
@@ -10,15 +13,20 @@ public class Model {
     private Cell[] gameGrid;
     private boolean isGameGridEmpty;
     private int unmarkedBombsCounter;
+    private int openedCellsCounter;
+    private int cellsWithoutBomb;
 
+    private GameStateObserver observer;
 
-    public Model(int width, int length, int amountOfBombs) {
+    public Model(int width, int length, int amountOfBombs, GameStateObserver observer) {
         this.width = width;
         this.length = length;
         this.amountOfBombs = amountOfBombs;
         this.gameGrid = generateEmptyGameGrid(width, length);
         this.isGameGridEmpty = true;
         this.unmarkedBombsCounter = amountOfBombs;
+        this.cellsWithoutBomb = width * length - amountOfBombs;
+        this.observer = observer;
     }
 
     private Cell[] generateEmptyGameGrid(int fieldWidth, int fieldLength) {
@@ -92,18 +100,25 @@ public class Model {
             if (gameGrid[cellAddress].getInnerValue() == 9) {
                 gameGrid[cellAddress].setState(1);
                 loose(cellAddress);
+                observer.loose();
             }
             if (gameGrid[cellAddress].getInnerValue() > 0  && gameGrid[cellAddress].getInnerValue() < 9) {
                 gameGrid[cellAddress].setState(1);
+                openedCellsCounter++;
             }
             if (gameGrid[cellAddress].getInnerValue() == 0) {
                 openAllAround(cellAddress);
+            }
+            if (openedCellsCounter == cellsWithoutBomb) {
+                win();
+                observer.win();
             }
         }
 
     }
     private void openAllAround (int cellAddress) {
         gameGrid[cellAddress].setState(1);
+        openedCellsCounter++;
         for (int i: gameGrid[cellAddress].getCellsAround()) {
             openCell(i);
         }
@@ -123,6 +138,10 @@ public class Model {
             if (cell.getInnerValue() == 9 && cell.getState() != 2) {
                 cell.setState(1);
             }
+            if (cell.getInnerValue() != 9 && cell.getState() == 2) {
+                cell.setInnerValue(11);
+                cell.setState(1);
+            }
         }
     }
 
@@ -130,14 +149,15 @@ public class Model {
     public void setFlag(int cellAddress) {
         gameGrid[cellAddress].setState(2);
         unmarkedBombsCounter--;
+        observer.changeUnmarkedBombsCounter();
 
     }
 
     public void setQuestion(int cellAddress) {
         gameGrid[cellAddress].setState(3);
         unmarkedBombsCounter++;
+        observer.changeUnmarkedBombsCounter();
     }
-
 
     public void undoQuestion(int cellAddress) {
         gameGrid[cellAddress].setState(0);

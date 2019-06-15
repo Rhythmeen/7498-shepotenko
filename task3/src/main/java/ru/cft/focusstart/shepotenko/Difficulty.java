@@ -14,4 +14,16 @@ public enum Difficulty {
         this.length = length;
         this.amountOfBombs = amountOfBombs;
     }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public int getAmountOfBombs() {
+        return amountOfBombs;
+    }
 }
