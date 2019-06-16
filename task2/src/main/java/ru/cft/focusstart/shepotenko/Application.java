@@ -43,7 +43,7 @@ public class Application {
         }
     }
 
-    public static void printToFile(String outputFileName, String text) {
+public static void printToFile(String outputFileName, String text) {
         try (FileWriter writer = new FileWriter(outputFileName)) {
             writer.write(text);
         } catch (IOException e) {
