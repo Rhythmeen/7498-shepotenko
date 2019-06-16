@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -50,18 +51,36 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         menuBar.add(menu);
 
         JMenuItem newGameItem = new JMenuItem("Новая игра");
-        JMenuItem recordBoardItem = new JMenuItem("Рекорды");
         JMenuItem difficultyItem = new JMenuItem("Уровень сложности");
+        JMenu recordBoard = new JMenu("Рекорды");
+        JMenuItem recordEasy = new JMenuItem("новичек");
+        JMenuItem recordNormal = new JMenuItem("любитель");
+        JMenuItem recordHard = new JMenuItem("профессионал");
+        recordBoard.add(recordEasy);
+        recordBoard.add(recordNormal);
+        recordBoard.add(recordHard);
         newGameItem.addActionListener(e -> newGame(gameField.getDifficculty()));
         difficultyItem.addActionListener(e -> {
-            JDialog dialog = generateDifficultyDialogFrame();
-            dialog.setVisible(true);
+            JDialog difficultyDialog = generateDifficultyDialogFrame();
+            difficultyDialog.setVisible(true);
+        });
+        recordEasy.addActionListener(e -> {
+            JDialog recordDialog = generateRecordBoard("EASY");
+            recordDialog.setVisible(true);
+        });
+        recordNormal.addActionListener(e -> {
+            JDialog recordDialog = generateRecordBoard("NORMAL");
+            recordDialog.setVisible(true);
+        });
+        recordHard.addActionListener(e -> {
+            JDialog recordDialog = generateRecordBoard("HARD");
+            recordDialog.setVisible(true);
         });
 
 
         menu.add(newGameItem);
         menu.add(difficultyItem);
-        menu.add(recordBoardItem);
+        menu.add(recordBoard);
 
         JPanel panel = new JPanel();
         panel.setLayout(new FlowLayout());
@@ -76,7 +95,6 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         pack();
 
 
-
     }
 
 
@@ -88,9 +106,9 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         add(gameField, BorderLayout.SOUTH);
         revalidate();
         pack();
-        }
+    }
 
-    public JDialog generateDifficultyDialogFrame() {
+    private JDialog generateDifficultyDialogFrame() {
         JDialog dialog = new JDialog(this, "Уровень сложности", true);
         dialog.setSize(new Dimension(200, 200));
         dialog.setResizable(false);
@@ -107,52 +125,137 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         group.add(hard);
 
         dialog.setLayout(new BorderLayout());
-        JPanel panel = new JPanel(new GridLayout(4,1));
-        panel.setPreferredSize(new Dimension(200,200));
+        JPanel panel = new JPanel(new GridLayout(4, 1));
+        panel.setPreferredSize(new Dimension(200, 200));
         panel.add(easy);
         panel.add(normal);
         panel.add(hard);
         panel.add(button);
-        dialog.add(panel,BorderLayout.WEST);
+        dialog.add(panel, BorderLayout.WEST);
 
         easy.addActionListener(a -> {
-            button.addActionListener(e ->{
+            button.addActionListener(e -> {
                 newGame(Difficulty.EASY);
                 dialog.dispose();
-        });});
+            });
+        });
         normal.addActionListener(b -> {
-            button.addActionListener(e ->{
+            button.addActionListener(e -> {
                 newGame(Difficulty.NORMAL);
                 dialog.dispose();
-        });});
+            });
+        });
         hard.addActionListener(c -> {
             button.addActionListener(e -> {
                 newGame(Difficulty.HARD);
                 dialog.dispose();
-            });});
-            return dialog;
+            });
+        });
+        return dialog;
+    }
+
+    private JDialog generateRecordBoard(String difficulty) {
+        JDialog recordTable = new JDialog(this, "Рекорды", true);
+        recordTable.setSize(new Dimension(300, 200));
+        recordTable.setResizable(false);
+        recordTable.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        recordTable.setLocationRelativeTo(gameField);
+        recordTable.setLayout(new BorderLayout());
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(10, 1));
+        recordTable.add(panel, BorderLayout.WEST);
+        try (Scanner scanner = new Scanner(new FileReader(this.getClass().getResource("/records/" + difficulty + ".txt").getFile()))) {
+            while (scanner.hasNext()) {
+                String record = scanner.nextLine();
+                JLabel label = new JLabel(record);
+                panel.add(label);
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
+        return recordTable;
+    }
+
+    private JDialog generateWriteRecordDialog(String difficulty, int newRecordTime) {
+        JDialog writeToRecordBoard = new JDialog(this, true);
+        writeToRecordBoard.setSize(new Dimension(300, 200));
+        writeToRecordBoard.setResizable(false);
+        writeToRecordBoard.setDefaultCloseOperation(HIDE_ON_CLOSE);
+        writeToRecordBoard.setLocationRelativeTo(gameField);
+        writeToRecordBoard.setLayout(new BorderLayout());
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 1));
+        writeToRecordBoard.add(panel, BorderLayout.WEST);
+        JLabel congrats = new JLabel("Поздравляем! вы поставили новый рекорд!");
+        JLabel yorTime = new JLabel("Ваше время: " + newRecordTime);
+        JTextField newRecordTextField = new JTextField("введите имя", 30);
+        JButton okButton = new JButton("ok");
+        writeToRecordBoard.add(okButton, BorderLayout.SOUTH);
+        okButton.addActionListener(e -> {
+            updateRecordBoard(newRecordTime, newRecordTextField.getText(), difficulty);
+            generateRecordBoard(difficulty);
+        });
+
+        return writeToRecordBoard;
+    }
+
+    private void updateRecordBoard(int newRecordTime, String name, String difficulty) {
+        ArrayList<String> records = new ArrayList<>();
+        try (Scanner scanner = new Scanner(new FileReader(this.getClass().getResource("/records/" + difficulty + ".txt").getFile()))) {
+            while (scanner.hasNext()) {
+                String recordLine = scanner.nextLine();
+                int recordTime = Integer.parseInt(recordLine.replaceAll("\\D+", ""));
+                if (newRecordTime >= recordTime) {
+                    records.add(recordLine);
+                } else {
+                    records.add(newRecordTime + " " + name);
+                    while (scanner.hasNext()) {
+                        records.add(scanner.nextLine());
+                    }
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (records.size() > 10) {
+            records.remove(10);
+        }
+        try (FileWriter writer = new FileWriter(this.getClass().getResource("/records/" + difficulty + ".txt").getFile())) {
+            for (String recordLine : records) {
+                writer.write(recordLine + "\n");
+            }
+        } catch (IOException e) {
+            System.out.println("Error printing to file");
+            System.exit(1);
+        }
+    }
+
 
     @Override
     public void gameStarted() {
-        System.out.println("пп");
+        System.out.println("gameStarted");
     }
 
     @Override
     public void win() {
-        System.out.println("пп");
+        System.out.println("win");
     }
 
     @Override
     public void loose() {
-        gameField.blockButtons();
+
+        System.out.println("loose");
     }
 
     @Override
-    public void changeUnmarkedBombsCounter() {
+    public void bombMarked() {
 
     }
 
+    @Override
+    public void bombUnmarked() {
+
+    }
 
 }
 

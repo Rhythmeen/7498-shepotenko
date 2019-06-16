@@ -1,192 +1,124 @@
 package ru.cft.focusstart.shepotenko.Model;
 
 
-import ru.cft.focusstart.shepotenko.GameStateObserver;
-
+import ru.cft.focusstart.shepotenko.Game;
 
 import java.util.*;
 
 public class Model {
-    private int width;
-    private int length;
+    private int sizeX;
+    private int sizeY;
     private int amountOfBombs;
-    private Cell[] gameGrid;
+    private Cell[][] gameGrid;
     private boolean isGameGridEmpty;
-    private int unmarkedBombsCounter;
-    private int openedCellsCounter;
-    private int cellsWithoutBomb;
 
-    private GameStateObserver observer;
 
-    public Model(int width, int length, int amountOfBombs, GameStateObserver observer) {
-        this.width = width;
-        this.length = length;
+    public Model(int sizeX, int sizeY, int amountOfBombs) {
+        //TODO проверка на размеры и кол-во бомб
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
         this.amountOfBombs = amountOfBombs;
-        this.gameGrid = generateEmptyGameGrid(width, length);
+        this.gameGrid = generateEmptyGameGrid();
+
         this.isGameGridEmpty = true;
-        this.unmarkedBombsCounter = amountOfBombs;
-        this.cellsWithoutBomb = width * length - amountOfBombs;
-        this.observer = observer;
+
     }
 
-    private Cell[] generateEmptyGameGrid(int fieldWidth, int fieldLength) {
-        Cell[] gameGrid = new Cell[fieldWidth * fieldLength];
-        for (int i = 0; i < gameGrid.length; i++) {
-            gameGrid[i] = new Cell();
+    private Cell[][] generateEmptyGameGrid() {
+        Cell[][] gameGrid = new Cell[this.sizeX][this.sizeY];
+        for (int x = 0; x < this.sizeX; x++) {
+            for (int y = 0; y < this.sizeY; y++) {
+                gameGrid[x][y] = new Cell();
+            }
         }
         return gameGrid;
     }
 
-    public void gameGridInit(int firstMove) {
-        HashSet<Integer> bombPlaces = new HashSet<>();
-        Random r = new Random();
-        while (bombPlaces.size() < amountOfBombs) {
-            int nextBombPlace = r.nextInt(width * length);
-            if (nextBombPlace != firstMove)
-                bombPlaces.add(nextBombPlace);
-        }
-        for (int i = 0; i < width * length; i++) {
-            gameGrid[i].setCellsAround(calcCellsAround(i));
-            if (bombPlaces.contains(i)) {
-                gameGrid[i].setInnerValue(9);
-            } else {
-                int numberOfBombsAround = 0;
-                for (int n : gameGrid[i].getCellsAround()) {
-                    if (bombPlaces.contains(n)) {
-                        numberOfBombsAround++;
-                    }
-                }
-                gameGrid[i].setInnerValue(numberOfBombsAround);
+    public ArrayList<int[]> getNeighboursAddresses(int xCoord, int yCoord) {
+        int[][] neighbours = {
+                {xCoord - 1, yCoord - 1}, {xCoord, yCoord - 1}, {xCoord + 1, yCoord - 1},
+                {xCoord - 1, yCoord}, {xCoord + 1, yCoord},
+                {xCoord - 1, yCoord + 1}, {xCoord, yCoord + 1}, {xCoord + 1, yCoord + 1}
+        };
+        ArrayList<int[]> result = new ArrayList<>();
+        for (int[] coords : neighbours) {
+            boolean inSizeY = (coords[0] >= 0) && (coords[0] < sizeY);
+            boolean inSizeX = (coords[1] >= 0) && (coords[1] < sizeX);
+            if (inSizeY && inSizeX) {
+                result.add(coords);
             }
         }
-        isGameGridEmpty = false;
+        return result;
     }
 
-    private ArrayList<Integer> calcCellsAround(int cellAddress) {
-        ArrayList<Integer> cellsAround = new ArrayList<>();
-        cellsAround.add(cellAddress - (length + 1));
-        cellsAround.add(cellAddress - length);
-        cellsAround.add(cellAddress - (length - 1));
-        cellsAround.add(cellAddress + 1);
-        cellsAround.add(cellAddress + (length + 1));
-        cellsAround.add(cellAddress + length);
-        cellsAround.add(cellAddress + (length - 1));
-        cellsAround.add(cellAddress - 1);
-        if ((cellAddress) - length < 0) {                                     //убираем сверху
-            cellsAround.remove(Integer.valueOf(cellAddress - (length + 1)));
-            cellsAround.remove(Integer.valueOf(cellAddress - length));
-            cellsAround.remove(Integer.valueOf(cellAddress - (length - 1)));
-        }
-        if ((cellAddress + 1) % length == 0) {                                //убираем справа
-            cellsAround.remove(Integer.valueOf(cellAddress - (length - 1)));
-            cellsAround.remove(Integer.valueOf(cellAddress + 1));
-            cellsAround.remove(Integer.valueOf(cellAddress + (length + 1)));
-        }
-        if (cellAddress + length >= width * length) {                //убираем снизу
-            cellsAround.remove(Integer.valueOf(cellAddress + (length + 1)));
-            cellsAround.remove(Integer.valueOf(cellAddress + length));
-            cellsAround.remove(Integer.valueOf(cellAddress + (length - 1)));
-        }
-        if (cellAddress % length == 0) {                                      //убираем слева
-            cellsAround.remove(Integer.valueOf(cellAddress + (length - 1)));
-            cellsAround.remove(Integer.valueOf(cellAddress - 1));
-            cellsAround.remove(Integer.valueOf(cellAddress - (length + 1)));
-        }
-        return cellsAround;
+    public void setCellState(int x, int y, int state) {
+        gameGrid[x][y].setState(state);
     }
 
-    public void openCell(int cellAddress) {
-        if (gameGrid[cellAddress].getState() == 0) {
-            if (gameGrid[cellAddress].getInnerValue() == 9) {
-                gameGrid[cellAddress].setState(1);
-                loose(cellAddress);
-                observer.loose();
-            }
-            if (gameGrid[cellAddress].getInnerValue() > 0  && gameGrid[cellAddress].getInnerValue() < 9) {
-                gameGrid[cellAddress].setState(1);
-                openedCellsCounter++;
-            }
-            if (gameGrid[cellAddress].getInnerValue() == 0) {
-                openAllAround(cellAddress);
-            }
-            if (openedCellsCounter == cellsWithoutBomb) {
-                win();
-                observer.win();
-            }
-        }
-
-    }
-    private void openAllAround (int cellAddress) {
-        gameGrid[cellAddress].setState(1);
-        openedCellsCounter++;
-        for (int i: gameGrid[cellAddress].getCellsAround()) {
-            openCell(i);
-        }
+    public int getCellState(int x, int y) {
+        return gameGrid[x][y].getState();
     }
 
-    public void win() {
-        for (Cell cell : gameGrid) {
-            if (cell.getInnerValue() == 9 && cell.getState() != 2) {
-                cell.setState(2);
-            }
-        }
+    public void setCellInnerValue(int x, int y, int innerValue) {
+        gameGrid[x][y].setInnerValue(innerValue);
     }
 
-    public void loose(int explosionAddress) {
-        gameGrid[explosionAddress].setInnerValue(10);
-        for (Cell cell : gameGrid) {
-            if (cell.getInnerValue() == 9 && cell.getState() != 2) {
-                cell.setState(1);
-            }
-            if (cell.getInnerValue() != 9 && cell.getState() == 2) {
-                cell.setInnerValue(11);
-                cell.setState(1);
-            }
-        }
+    public int getCellInnerValue(int x, int y) {
+        return gameGrid[x][y].getInnerValue();
     }
 
-
-    public void setFlag(int cellAddress) {
-        gameGrid[cellAddress].setState(2);
-        unmarkedBombsCounter--;
-        observer.changeUnmarkedBombsCounter();
-
+    public int getAmountOfBombs() {
+        return amountOfBombs;
     }
 
-    public void setQuestion(int cellAddress) {
-        gameGrid[cellAddress].setState(3);
-        unmarkedBombsCounter++;
-        observer.changeUnmarkedBombsCounter();
+    public int getSizeX() {
+        return sizeX;
     }
 
-    public void undoQuestion(int cellAddress) {
-        gameGrid[cellAddress].setState(0);
-    }
-
-    public int getCellsState(int cellAddress) {
-        return gameGrid[cellAddress].getState();
-    }
-
-    public int getCellInnerValue(int cellAddress) {
-        return gameGrid[cellAddress].getInnerValue();
-    }
-
-    public ArrayList<Integer> getCellsAround(int cellAddress) {
-        return gameGrid[cellAddress].getCellsAround();
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getLength() {
-        return length;
+    public int getSizeY() {
+        return sizeY;
     }
 
     public boolean getIsGameGridEmpty() {
         return isGameGridEmpty;
     }
+
+    public void setIsGameGridEmpty(boolean gameGridEmpty) {
+        isGameGridEmpty = gameGridEmpty;
+    }
 }
+//    private ArrayList<Integer> calcCellsAround(int cellAddress) {
+//        ArrayList<Integer> cellsAround = new ArrayList<>();
+//        cellsAround.add(cellAddress - (sizeY + 1));
+//        cellsAround.add(cellAddress - sizeY);
+//        cellsAround.add(cellAddress - (sizeY - 1));
+//        cellsAround.add(cellAddress + 1);
+//        cellsAround.add(cellAddress + (sizeY + 1));
+//        cellsAround.add(cellAddress + sizeY);
+//        cellsAround.add(cellAddress + (sizeY - 1));
+//        cellsAround.add(cellAddress - 1);
+//        if ((cellAddress) - sizeY < 0) {                                     //убираем сверху
+//            cellsAround.remove(Integer.valueOf(cellAddress - (sizeY + 1)));
+//            cellsAround.remove(Integer.valueOf(cellAddress - sizeY));
+//            cellsAround.remove(Integer.valueOf(cellAddress - (sizeY - 1)));
+//        }
+//        if ((cellAddress + 1) % sizeY == 0) {                                //убираем справа
+//            cellsAround.remove(Integer.valueOf(cellAddress - (sizeY - 1)));
+//            cellsAround.remove(Integer.valueOf(cellAddress + 1));
+//            cellsAround.remove(Integer.valueOf(cellAddress + (sizeY + 1)));
+//        }
+//        if (cellAddress + sizeY >= sizeX * sizeY) {                //убираем снизу
+//            cellsAround.remove(Integer.valueOf(cellAddress + (sizeY + 1)));
+//            cellsAround.remove(Integer.valueOf(cellAddress + sizeY));
+//            cellsAround.remove(Integer.valueOf(cellAddress + (sizeY - 1)));
+//        }
+//        if (cellAddress % sizeY == 0) {                                      //убираем слева
+//            cellsAround.remove(Integer.valueOf(cellAddress + (sizeY - 1)));
+//            cellsAround.remove(Integer.valueOf(cellAddress - 1));
+//            cellsAround.remove(Integer.valueOf(cellAddress - (sizeY + 1)));
+//        }
+//        return cellsAround;
+//    }
 
 
 

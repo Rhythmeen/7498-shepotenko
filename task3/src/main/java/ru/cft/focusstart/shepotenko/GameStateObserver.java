@@ -4,5 +4,6 @@ public interface GameStateObserver {
     void gameStarted();
     void win();
     void loose();
-    void changeUnmarkedBombsCounter();
+    void bombMarked();
+    void bombUnmarked();
 }
