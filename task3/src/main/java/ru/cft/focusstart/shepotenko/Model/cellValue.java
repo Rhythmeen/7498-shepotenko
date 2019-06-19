@@ -1,6 +1,6 @@
 package ru.cft.focusstart.shepotenko.Model;
 
-public enum cellValue {
+public enum CellValue {
     EMPTY(0),
     ONE(1),
     TWO(2),
