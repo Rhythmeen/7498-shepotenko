@@ -14,7 +14,7 @@ public enum CellValue {
 
     private int num;
 
-    cellValue(int num) {
+    CellValue(int num) {
         this.num = num;
     }
 
@@ -22,8 +22,8 @@ public enum CellValue {
         return this.num;
     }
 
-    public static cellValue getByInt(int valueToGet) {
-        for (cellValue value : cellValue.values()) {
+    public static CellValue getByInt(int valueToGet) {
+        for (CellValue value : CellValue.values()) {
             if (value.num == valueToGet) {
                 return value;
             }
