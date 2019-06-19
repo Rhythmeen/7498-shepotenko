@@ -1,34 +1,71 @@
 package ru.cft.focusstart.shepotenko.Model;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 
-class Cell {
-    private int innerValue; //0 - пустая клетка, 1-8 - цифры, 9 - бомба 10 - взорвался 11 - бомбы нет, ошибка.
-    private int state;      //0 - закрыто, 1- открыто, 2 - флаг, 3 - вопрос
+public class Cell {
+    private cellValue Value;
+    private CellState state;
 
-    Cell(){
+    Cell() {
+        this.state = CellState.CLOSED;
+        }
 
+    public void setValue(cellValue value) {
+        this.Value = value;
     }
 
-    public void setInnerValue(int innerValue) {
-        this.innerValue = innerValue;
+    public cellValue getValue() {
+        return this.Value;
     }
 
-    public int getInnerValue() {
-        return innerValue;
+    public void setClosed() {
+        this.state = CellState.CLOSED;
     }
 
-    public void setState(int state) {
-        this.state = state;
+    public void setOpened() {
+        this.state = CellState.OPENED;
     }
 
-    public int getState() {
-        return state;
+    public void setFlaged() {
+        this.state = CellState.FLAGED;
     }
 
+    public void setQuestioned() {
+        this.state = CellState.QUESTIONED;
+    }
 
+    public void setExploded() {
+        this.state = CellState.EXPLODED;
+    }
 
+    public void setMistake() {
+        this.state = CellState.MISTAKE;
+    }
 
+    public boolean isClosed() {
+        return this.state == CellState.CLOSED;
+    }
+
+    public boolean isOpened() {
+        return this.state == CellState.OPENED;
+    }
+
+    public boolean isFlaged() {
+            return this.state == CellState.FLAGED;
+    }
+
+    public boolean isQuestioned() {
+        return this.state == CellState.QUESTIONED;
+    }
+
+    public boolean isExploded() {
+        return this.state == CellState.EXPLODED;
+    }
+
+    public boolean isMistake() {
+        return this.state == CellState.MISTAKE;
+    }
 
 }
+
+
+
