@@ -1,52 +1,26 @@
 package ru.cft.focusstart.shepotenko.GUI;
 
-import ru.cft.focusstart.shepotenko.MainClass;
 import ru.cft.focusstart.shepotenko.Model.Difficulty;
 import ru.cft.focusstart.shepotenko.Model.Game;
+
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 
 public class MinesweeperWindow extends JFrame implements GameStateObserver {
-    static HashMap<Integer, ImageIcon> icons = fillIconsMap();
     private Game game;
     private GameField gameField;
     private JLabel bombsUnmarkedJLabel;
     private JLabel timerJLabel;
     private JButton restartButton;
-    private Timer timer;
-    private int time;
-
-    private static HashMap<Integer, ImageIcon> fillIconsMap() {
-        HashMap<Integer, ImageIcon> icons = new HashMap<>();
-        icons.put(0, new ImageIcon(MainClass.class.getResource("/icons/zero.png")));
-        icons.put(1, new ImageIcon(MainClass.class.getResource("/icons/one.png")));
-        icons.put(2, new ImageIcon(MainClass.class.getResource("/icons/two.png")));
-        icons.put(3, new ImageIcon(MainClass.class.getResource("/icons/three.png")));
-        icons.put(4, new ImageIcon(MainClass.class.getResource("/icons/four.png")));
-        icons.put(5, new ImageIcon(MainClass.class.getResource("/icons/five.png")));
-        icons.put(6, new ImageIcon(MainClass.class.getResource("/icons/six.png")));
-        icons.put(7, new ImageIcon(MainClass.class.getResource("/icons/seven.png")));
-        icons.put(8, new ImageIcon(MainClass.class.getResource("/icons/eight.png")));
-        icons.put(9, new ImageIcon(MainClass.class.getResource("/icons/mine.png")));
-        icons.put(10, new ImageIcon(MainClass.class.getResource("/icons/mined.png")));
-        icons.put(11, new ImageIcon(MainClass.class.getResource("/icons/no_mine.png")));
-        icons.put(12, new ImageIcon(MainClass.class.getResource("/icons/closed.png")));
-        icons.put(13, new ImageIcon(MainClass.class.getResource("/icons/flag.png")));
-        icons.put(14, new ImageIcon(MainClass.class.getResource("/icons/question.png")));
-        icons.put(15, new ImageIcon(MainClass.class.getResource("/icons/icon.png")));
-        return icons;
-    }
 
     public MinesweeperWindow() {
         this.setAlwaysOnTop(true);
         this.setResizable(false);
         this.setLocation(100, 100);
-        this.setIconImage(icons.get(15).getImage());
+        this.setIconImage(Icons.getGameIcon().getImage());
         this.setTitle("Caпер");
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
@@ -70,9 +44,9 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
             leaderBoard.add(recordNormal);
             leaderBoard.add(recordHard);
             difficultyItem.addActionListener(e -> generateDifficultyJDialog());
-            recordEasy.addActionListener(e -> generateLeaderBoardJDialog("EASY"));
-            recordNormal.addActionListener(e -> generateLeaderBoardJDialog("NORMAL"));
-            recordHard.addActionListener(e -> generateLeaderBoardJDialog("HARD"));
+            recordEasy.addActionListener(e -> generateLeaderBoardJDialog());
+            recordNormal.addActionListener(e -> generateLeaderBoardJDialog());
+            recordHard.addActionListener(e -> generateLeaderBoardJDialog());
 
             menu.add(newGameItem);
             menu.add(difficultyItem);
@@ -100,10 +74,6 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
 
             this.add(topPanel, BorderLayout.NORTH);
         }
-        this.timer = new Timer(1000, e -> {
-            time++;
-            timerJLabel.setText(String.valueOf(time));
-        });
         newGame(Difficulty.EASY);
     }
 
@@ -115,8 +85,8 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         this.gameField = new GameField(game);
         this.add(this.gameField, BorderLayout.SOUTH);
         this.restartButton.addActionListener(e -> newGame(this.game.getDifficulty()));
-        this.updateUI();
-        this.time = 0;
+        this.onFieldChanged();
+
         this.timerJLabel.setText("0");
         this.pack();
     }
@@ -161,7 +131,7 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         dialog.setVisible(true);
     }
 
-    private void generateLeaderBoardJDialog(String difficulty) {
+    private void generateLeaderBoardJDialog() {
         JDialog recordTable = new JDialog(this, "Рекорды", true);
         recordTable.setSize(new Dimension(300, 200));
         recordTable.setResizable(false);
@@ -173,7 +143,7 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         recordTable.add(panel, BorderLayout.WEST);
         panel.setLayout(new GridLayout(10, 1));
 
-        try (Scanner scanner = new Scanner(new FileReader(this.getClass().getResource("/records/" + difficulty + ".txt").getFile()))) {
+        try (Scanner scanner = new Scanner(new FileReader(game.getRecordManager().getLeaderBoardPath()))) {
             while (scanner.hasNext()) {
                 JLabel recordLine = new JLabel(scanner.nextLine());
                 panel.add(recordLine);
@@ -219,27 +189,7 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         winDialog.setVisible(true);
     }
 
-    private boolean IsNewRecord(int newTime) {
-        int recordLineCount = 0;
-        String lastLine = "";
-        try (Scanner scanner = new Scanner(new FileReader(getClass().getResource("/records/" + game.getDifficulty().name() + ".txt").getPath()))) {
-            while (scanner.hasNext()) {
-                lastLine = scanner.nextLine();
-                recordLineCount++;
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (recordLineCount < 10) {
-            return true;
-        } else {
-            int lastRecord = Integer.parseInt(lastLine.substring(0, lastLine.indexOf(" ")));
-            if (newTime < lastRecord) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     private void generateNewRecordJDialog() {
         JDialog writeToLeaderBoard = new JDialog(this, "Поздравляем! вы поставили новый рекорд!", true);
@@ -251,7 +201,7 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
         JPanel panel = new JPanel();
         writeToLeaderBoard.add(panel);
 
-        JLabel yourTime = new JLabel("Ваше время: " + this.time);
+        JLabel yourTime = new JLabel("Ваше время: " + game.getTime());
         JTextField newRecordTextField = new JTextField("Ваше имя", 30);
         JButton okButton = new JButton("ok");
         panel.add(yourTime);
@@ -260,60 +210,21 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
 
         okButton.addActionListener(e -> {
             writeToLeaderBoard.dispose();
-            updateLeaderBoard(this.time, newRecordTextField.getText());
-            generateLeaderBoardJDialog(game.getDifficulty().name());
+            game.getRecordManager().updateLeaderBoard(game.getTime(), newRecordTextField.getText());
+            generateLeaderBoardJDialog();
             newGame(game.getDifficulty());
         });
 
         writeToLeaderBoard.setVisible(true);
     }
 
-    private void updateLeaderBoard(int newRecordTime, String newRecordName) {
-        ArrayList<String> records = new ArrayList<>();
-        try (Scanner scanner = new Scanner(new FileReader(getClass().getResource("/records/" + game.getDifficulty().name() + ".txt").getPath()))) {
-            if (scanner.hasNext()) {
-                while (scanner.hasNext()) {
-                    String recordLine = scanner.nextLine();
-                    int recordTime = Integer.parseInt(recordLine.substring(0, recordLine.indexOf(" ")));
-                    if (newRecordTime < recordTime) {
-                        records.add(newRecordTime + " " + newRecordName);
-                        records.add(recordLine);
-                        while (scanner.hasNext()) {
-                            records.add(scanner.nextLine());
-                        }
-                    } else {
-                        records.add(recordLine);
-                    }
-                }
-            } else {
-                records.add(newRecordTime + " " + newRecordName);
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (records.size() > 10) {
-            records.remove(10);
-        }
-        try (FileWriter writer = new FileWriter(getClass().getResource("/records/" + game.getDifficulty().name() + ".txt").getPath())) {
-            for (String recordLine : records) {
-                writer.write(recordLine + "\n");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
-    //имплементиция интерфейса GameStateObserver
-    @Override
-    public void gameStarted() {
-        this.timer.start();
-    }
+
+    //имплементация интерфейса GameStateObserver
 
     @Override
     public void onWin() {
-        gameField.update();
-        this.timer.stop();
-        if (IsNewRecord(this.time)) {
+        if (this.game.getRecordManager().isNewRecord(game.getTime())) {
             generateNewRecordJDialog();
         } else {
             generateWinJDialog();
@@ -323,13 +234,17 @@ public class MinesweeperWindow extends JFrame implements GameStateObserver {
     @Override
     public void onLoose() {
         gameField.update();
-        this.timer.stop();
         generateLooseJDialog();
     }
 
     @Override
-    public void updateUI() {
+    public void onFieldChanged() {
         gameField.update();
         bombsUnmarkedJLabel.setText(String.valueOf(game.getUnmarkedBombsCounter()));
+    }
+
+    @Override
+    public void onTimeChanged() {
+        timerJLabel.setText(String.valueOf(game.getTime()));
     }
 }

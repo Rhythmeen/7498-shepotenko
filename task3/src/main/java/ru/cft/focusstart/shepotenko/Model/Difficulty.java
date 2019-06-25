@@ -16,14 +16,14 @@ public enum Difficulty {
     }
 
     public int getSizeX() {
-        return sizeX;
+        return this.sizeX;
     }
 
     public int getSizeY() {
-        return sizeY;
+        return this.sizeY;
     }
 
     public int getAmountOfBombs() {
-        return amountOfBombs;
+        return this.amountOfBombs;
     }
 }

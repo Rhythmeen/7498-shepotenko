@@ -1,6 +1,7 @@
 package ru.cft.focusstart.shepotenko.GUI;
 
 import ru.cft.focusstart.shepotenko.Model.Cell;
+import ru.cft.focusstart.shepotenko.Model.Coordinate;
 import ru.cft.focusstart.shepotenko.Model.Game;
 
 import javax.swing.*;
@@ -9,68 +10,73 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 
-public class GameField extends JPanel {
+class GameField extends JPanel {
     private Game game;
 
-    private JButton[] buttons;
+    private JButton[][] buttons;
 
-    public GameField(Game game) {
+    GameField(Game game) {
         this.game = game;
-        buttons = generateButtons(game.getSizeY() * game.getSizeX());
+        buttons = generateButtons(game.getSizeX(), game.getSizeY());
         setLayout(new GridLayout(game.getSizeX(), game.getSizeY()));
         setPreferredSize(new Dimension(game.getSizeY() * 40, game.getSizeX() * 40));
-        update();
+        for (int x = 0; x < game.getSizeX(); x++) {
+            for (int y = 0; y < game.getSizeY(); y++) {
+                add(buttons[x][y]);
+            }
+        }
     }
 
-    private JButton[] generateButtons(int amountOfButtons) {
-        JButton[] buttons = new JButton[amountOfButtons];
-        for (int i = 0; i < buttons.length; i++) {
-            JButton button = new JButton();
-            button.setIcon(MinesweeperWindow.icons.get(12));
-            int[] buttonCoord = game.convertAddress2XY(i);
-            button.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                    if (SwingUtilities.isLeftMouseButton(e)) {
-                        game.pressOne(buttonCoord[0], buttonCoord[1]);
+    private JButton[][] generateButtons(int sizeX, int sizeY) {
+        JButton[][] buttons = new JButton[sizeX][sizeY];
+        for (int x = 0; x < sizeX; x++) {
+            for (int y = 0; y < sizeY; y++) {
+                JButton button = new JButton();
+                button.setIcon(Icons.getClosedIcon());
+                Coordinate coord = new Coordinate(x, y);
+                button.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            game.openCell(coord);
+                        }
+                        if (SwingUtilities.isRightMouseButton(e)) {
+                            game.markCell(coord);
+                        }
+                        if (SwingUtilities.isMiddleMouseButton(e)) {
+                            game.openCellsAround(coord);
+                        }
                     }
-                    if (SwingUtilities.isRightMouseButton(e)) {
-                        game.pressThree(buttonCoord[0], buttonCoord[1]);
-                    }
-                    if (SwingUtilities.isMiddleMouseButton(e)) {
-                        game.pressTwo(buttonCoord[0], buttonCoord[1]);
-                    }
-                }
-            });
-            buttons[i] = button;
+                });
+                buttons[x][y] = button;
+            }
         }
         return buttons;
     }
 
-    public void update() {
-        for (int i = 0; i < game.getSizeY() * game.getSizeX(); i++) {
-            int xCoord = game.convertAddress2XY(i)[0];
-            int yCoord = game.convertAddress2XY(i)[1];
-            Cell cell = game.getCell(xCoord, yCoord);
-            if (cell.isOpened()) {
-                buttons[i].setIcon(MinesweeperWindow.icons.get(cell.getValue().getNum()));
+    void update() {
+        for (int x = 0; x < game.getSizeX(); x++) {
+            for (int y = 0; y < game.getSizeY(); y++) {
+                Cell cell = game.getCell(new Coordinate(x, y));
+                if (cell.isOpened()) {
+                    buttons[x][y].setIcon(Icons.getNumberedIcon(cell.getValue().getNum()));
+                }
+                if (cell.isClosed()) {
+                    buttons[x][y].setIcon(Icons.getClosedIcon());
+                }
+                if (cell.isFlaged()) {
+                    buttons[x][y].setIcon(Icons.getFlagIcon());
+                }
+                if (cell.isQuestioned()) {
+                    buttons[x][y].setIcon(Icons.getQuistionIcon());
+                }
+                if (cell.isExploded()) {
+                    buttons[x][y].setIcon(Icons.getBombedIcon());
+                }
+                if (cell.isMistake()) {
+                    buttons[x][y].setIcon(Icons.getMistakeIcon());
+                }
             }
-            if (cell.isClosed()) {
-                buttons[i].setIcon(MinesweeperWindow.icons.get(12));
-            }
-            if (cell.isFlaged()) {
-                buttons[i].setIcon(MinesweeperWindow.icons.get(13));
-            }
-            if (cell.isQuestioned()) {
-                buttons[i].setIcon(MinesweeperWindow.icons.get(14));
-            }
-            if (cell.isExploded()) {
-                buttons[i].setIcon(MinesweeperWindow.icons.get(10));
-            }
-            if (cell.isMistake()) {
-                buttons[i].setIcon(MinesweeperWindow.icons.get(11));
-            }
-            add(buttons[i]);
         }
     }
 }

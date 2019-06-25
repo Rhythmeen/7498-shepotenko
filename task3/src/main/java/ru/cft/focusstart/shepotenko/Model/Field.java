@@ -29,37 +29,36 @@ class Field {
         return gameGrid;
     }
 
-    ArrayList<int[]> getCellsNeighboursAddresses(int xCoord, int yCoord) {
-        int[][] neighbours = {
-                {xCoord - 1, yCoord - 1}, {xCoord - 1, yCoord}, {xCoord - 1, yCoord + 1},
-                {xCoord, yCoord - 1}, {xCoord, yCoord + 1},
-                {xCoord + 1, yCoord - 1}, {xCoord + 1, yCoord}, {xCoord + 1, yCoord + 1}
+    ArrayList<Coordinate> getCellsNeighboursAddresses(Coordinate coordinate) {
+        int x = coordinate.getX();
+        int y = coordinate.getY();
+        Coordinate[] neighbours = {
+                new Coordinate(x - 1,y - 1),
+                new Coordinate(x - 1,y),
+                new Coordinate(x-1,y + 1),
+                new Coordinate(x,y - 1),
+                new Coordinate(x,y + 1),
+                new Coordinate(x + 1,y - 1),
+                new Coordinate(x + 1,y),
+                new Coordinate(x + 1,y + 1)
         };
-        ArrayList<int[]> result = new ArrayList<>();
-        for (int[] coords : neighbours) {
-            boolean inSizeX = (coords[0] >= 0) && (coords[0] < sizeX);
-            boolean inSizeY = (coords[1] >= 0) && (coords[1] < sizeY);
+        ArrayList<Coordinate> result = new ArrayList<>();
+        for (Coordinate coord : neighbours) {
+            boolean inSizeX = (coord.getX() >= 0) && (coord.getX() < this.sizeX);
+            boolean inSizeY = (coord.getY() >= 0) && (coord.getY() < this.sizeY);
             if (inSizeY && inSizeX) {
-                result.add(coords);
+                result.add(coord);
             }
         }
         return result;
     }
 
-    Cell getCell(int xCoord, int yCoord) {
-        return this.gameGrid[xCoord][yCoord];
+    Cell getCell(Coordinate coord) {
+        return this.gameGrid[coord.getX()][coord.getY()];
     }
 
     int getAmountOfBombs() {
         return this.amountOfBombs;
-    }
-
-    int getSizeX() {
-        return this.sizeX;
-    }
-
-    int getSizeY() {
-        return this.sizeY;
     }
 
     boolean isGameGridEmpty() {

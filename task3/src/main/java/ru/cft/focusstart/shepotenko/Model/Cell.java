@@ -2,42 +2,42 @@ package ru.cft.focusstart.shepotenko.Model;
 
 
 public class Cell {
-    private CellValue Value;
+    private CellValue value;
     private CellState state;
 
     Cell() {
         this.state = CellState.CLOSED;
         }
 
-    public void setValue(CellValue value) {
-        this.Value = value;
-    }
-
     public CellValue getValue() {
-        return this.Value;
+        return this.value;
     }
 
-    public void setClosed() {
+    void setValue(CellValue value) {
+        this.value = value;
+    }
+
+    void setClosed() {
         this.state = CellState.CLOSED;
     }
 
-    public void setOpened() {
+    void setOpened() {
         this.state = CellState.OPENED;
     }
 
-    public void setFlaged() {
+    void setFlaged() {
         this.state = CellState.FLAGED;
     }
 
-    public void setQuestioned() {
+    void setQuestioned() {
         this.state = CellState.QUESTIONED;
     }
 
-    public void setExploded() {
+    void setExploded() {
         this.state = CellState.EXPLODED;
     }
 
-    public void setMistake() {
+    void setMistake() {
         this.state = CellState.MISTAKE;
     }
 
