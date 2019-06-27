@@ -17,7 +17,7 @@ public class CalculatingApp {
             Task task = new Task(i, i + oneTaskArea);
             callables.add(task);
         }
-        ExecutorService executor = Executors.newFixedThreadPool(10);
+        ExecutorService executor = Executors.newFixedThreadPool(higherLimit / oneTaskArea);
             double result = 0;
             System.out.println("calculating...");
         try {
