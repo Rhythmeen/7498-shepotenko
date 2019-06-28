@@ -12,17 +12,15 @@ public class Task implements Callable<Double> {
         this.to = to;
     }
 
-
     @Override
     public Double call() {
         int justBecause = 0;
-        for (int x = from; x < to; x++) {
+        for (int x = from; x <= to; x++) {
             for (int i = x; i < x + 1000; i++) {
-               justBecause += i;
+                justBecause += i;
             }
             result += x * x / justBecause;
-            }
+        }
         return result;
-
     }
 }
