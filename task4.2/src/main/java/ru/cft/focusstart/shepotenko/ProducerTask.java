@@ -25,7 +25,7 @@ public class ProducerTask implements Runnable {
                 logger.info("prodused res" + res.getId());
                 store.put(res);
                 logger.info("put  res" + res.getId());
-                } catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 logger.error("was interrupted");
             }
         }
