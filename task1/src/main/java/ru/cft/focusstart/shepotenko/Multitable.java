@@ -5,7 +5,6 @@ import java.util.Scanner;
 
 public class Multitable {
     public static void main(String[] args) {
-
         int tableSize;
 
         System.out.println("введите размер таблицы");
