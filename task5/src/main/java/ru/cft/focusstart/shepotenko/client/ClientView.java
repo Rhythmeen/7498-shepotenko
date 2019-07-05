@@ -165,6 +165,7 @@ public class ClientView extends JFrame implements Iview {
 
     private void onExit() {
         presenter.disconnect();
+
     }
 
     @Override

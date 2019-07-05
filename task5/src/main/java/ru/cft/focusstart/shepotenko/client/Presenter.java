@@ -45,15 +45,18 @@ public class Presenter {
     }
 
     void disconnect() {
-        Message message = new Message(MessageType.CLIENT_EXIT);
-        writer.println(gson.toJson(message));
-        writer.flush();
-
+        if(this.socket != null) {
+            Message message = new Message(MessageType.CLIENT_EXIT);
+            writer.println(gson.toJson(message));
+            writer.flush();
         messageListenerThread.interrupt();
         try {
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        } else {
+            System.exit(0);
         }
     }
 
