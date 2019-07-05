@@ -3,35 +3,35 @@ package ru.cft.focusstart.shepotenko.server;
 import java.io.*;
 import java.net.Socket;
 
-public class ClientHandler {
+class ClientHandler {
     private Socket socket;
     private BufferedReader reader;
     private PrintWriter writer;
     private String name;
 
-    public ClientHandler(Socket socket) throws IOException {
+    ClientHandler(Socket socket) throws IOException {
         this.socket = socket;
         this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         this.writer = new PrintWriter(socket.getOutputStream());
     }
 
-    public Socket getSocket() {
+    Socket getSocket() {
         return socket;
     }
 
-    public BufferedReader getReader() {
+    BufferedReader getReader() {
         return reader;
     }
 
-    public PrintWriter getWriter() {
+    PrintWriter getWriter() {
         return writer;
     }
 
-    public String getName() {
+    String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    void setName(String name) {
         this.name = name;
     }
 }

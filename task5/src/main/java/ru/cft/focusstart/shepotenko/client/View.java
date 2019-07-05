@@ -2,21 +2,19 @@ package ru.cft.focusstart.shepotenko.client;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class View extends JFrame implements Iview {
     private JTextArea chatField;
     private JTextArea userList;
     private Presenter presenter;
 
-    public View() {
+    View() {
         this.presenter = new Presenter(this);
 
+        this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         this.setResizable(false);
         this.setLocation(100, 100);
         this.setTitle("Chauchat");
-        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         this.setLayout(new BorderLayout());
         this.setVisible(true);
@@ -49,6 +47,10 @@ public class View extends JFrame implements Iview {
         sendButton.setSize(new Dimension(20, 30));
         sendButton.addActionListener(e -> onSendMessage(newMessageField.getText()));
 
+        JButton exitButton = new JButton("exit");
+        exitButton.addActionListener(e -> createExitDialog());
+        bottom.add(exitButton);
+
         top.add(chatField);
         top.add(userList);
         bottom.add(newMessageField);
@@ -59,7 +61,7 @@ public class View extends JFrame implements Iview {
         createSetNickNameDialog();
     }
 
-    private JDialog createSetNickNameDialog() {
+    private void createSetNickNameDialog() {
         JDialog nickNameDialog = new JDialog(this, "new user", true);
         nickNameDialog.setSize(new Dimension(300, 100));
         nickNameDialog.setResizable(false);
@@ -78,7 +80,6 @@ public class View extends JFrame implements Iview {
 
         nickNameDialog.setVisible(true);
 
-        return nickNameDialog;
     }
 
     private void createExitDialog() {
@@ -95,20 +96,18 @@ public class View extends JFrame implements Iview {
             System.exit(0);
         });
 
-        JButton noButton = new JButton("yes");
+        JButton noButton = new JButton("no");
         noButton.setSize(new Dimension(20, 30));
         noButton.addActionListener(e -> exitDialog.dispose());
+
+        exitDialog.add(yesButton);
+        exitDialog.add(noButton);
+        exitDialog.setVisible(true);
 
     }
 
     private void onJoin(String nickName) {
-        boolean isJoined = false;
-        while (!isJoined)
-            isJoined = presenter.joinWithNewNickName(nickName);
-        if (!isJoined) {
-            presenter.getModel().addMessage("this nickname is unavailable. set another nickname.");
-            createSetNickNameDialog();
-        }
+        presenter.joinWithNewNickName(nickName);
     }
 
     private void onSendMessage(String text) {
@@ -132,6 +131,7 @@ public class View extends JFrame implements Iview {
         for (String user : presenter.getModel().getUsers()) {
             users.append(user).append("\n");
         }
+
         this.userList.setText(users.toString());
     }
 }

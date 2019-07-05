@@ -19,7 +19,7 @@ public class Presenter {
     private BufferedReader reader;
     private PrintWriter writer;
 
-    public Presenter(Iview iview) {
+    Presenter(Iview iview) {
         this.iview = iview;
         this.model = new Model();
 
@@ -44,7 +44,7 @@ public class Presenter {
         messageListenerThread.start();
     }
 
-    Thread messageListenerThread = new Thread(() -> {
+    private Thread messageListenerThread = new Thread(() -> {
         boolean interrupted = false;
         while (!interrupted) {
             try {
@@ -64,7 +64,7 @@ public class Presenter {
         }
     });
 
-    public void respondToReceivedMessage(Message message) {
+    private void respondToReceivedMessage(Message message) {
         if (message.getType() == MessageType.SERVER_MESSAGE ||
                 message.getType() == MessageType.CLIENT_TEXT_MESSAGE) {
             model.addMessage(message.toString());
@@ -75,23 +75,19 @@ public class Presenter {
         }
     }
 
-
     public Model getModel() {
         return model;
     }
 
-    public boolean joinWithNewNickName(String nickName) {
-        if (!model.getUsers().contains(nickName) && !nickName.equals("")) {
-            Message message = new Message(MessageType.CLIENT_SET_NAME);
-             message.setName(nickName);
-             model.setNickName(nickName);
-             writer.println(gson.toJson(message));
-             writer.flush();
-             return true;
-        } else return false;
+    void joinWithNewNickName(String nickName) {
+        Message message = new Message(MessageType.CLIENT_SET_NAME);
+        message.setName(nickName);
+        model.setNickName(nickName);
+        writer.println(gson.toJson(message));
+        writer.flush();
     }
 
-    public void sendMessage (String text) {
+    void sendMessage(String text) {
         Message message = new Message(MessageType.CLIENT_TEXT_MESSAGE);
         message.setName(model.getNickName());
         message.setText(text);
@@ -100,7 +96,7 @@ public class Presenter {
         writer.flush();
     }
 
-    public void disconnect() {
+    void disconnect() {
         Message message = new Message(MessageType.CLIENT_EXIT);
         writer.println(gson.toJson(message));
         writer.flush();

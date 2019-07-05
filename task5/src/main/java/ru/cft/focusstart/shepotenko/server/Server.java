@@ -17,13 +17,11 @@ import ru.cft.focusstart.shepotenko.common.MessageType;
 public class Server {
     private final Logger logger = LoggerFactory.getLogger(Server.class);
     private final Gson gson = new Gson();
-    private final int userListCapacity = 20;
-
 
     private ArrayList<ClientHandler> clients;
     private ServerSocket serverSocket;
 
-    public Server() {
+    Server() {
         Properties properties = new Properties();
         try (InputStream propertiesStream = Server.class.getClassLoader().getResourceAsStream("server.properties")) {
             properties.load(propertiesStream);
@@ -35,7 +33,7 @@ public class Server {
         start();
     }
 
-    void start() {
+    private void start() {
         messageListenerThread.start();
         connectionListenerThread.start();
 
@@ -44,10 +42,11 @@ public class Server {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
             messageListenerThread.interrupt();
+            connectionListenerThread.interrupt();
             try {
                 serverSocket.close();
             } catch (IOException e) {
-                logger.error("error closing client socket");
+                logger.error("error closing server socket");
             }
             try {
                 for (ClientHandler client : clients) {
@@ -59,42 +58,37 @@ public class Server {
         }));
     }
 
-    Thread connectionListenerThread = new Thread(() -> {
+    private Thread connectionListenerThread = new Thread(() -> {
         while (!Thread.interrupted()) {
             Socket clientSocket;
             try {
                 clientSocket = serverSocket.accept();
-
-                if (clients.size() < userListCapacity) {
-                    ClientHandler client = new ClientHandler(clientSocket);
-                    client.getWriter().println(gson.toJson(getUpdatedUserListMessage()));
-                    clients.add(client);
-                    logger.info("new connection");
-                } else {
-                    String text = "number of connections exceeded";
-                    new ClientHandler(clientSocket).getWriter().println(text);
-                }
+                ClientHandler client = new ClientHandler(clientSocket);
+                client.getWriter().println(gson.toJson(getUpdatedUserListMessage()));
+                clients.add(client);
+                logger.info("new connection");
             } catch (IOException e) {
                 logger.error("error adding new client");
             }
         }
     });
 
-    Thread messageListenerThread = new Thread(() -> {
+    private Thread messageListenerThread = new Thread(() -> {
         boolean interrupted = false;
         while (!interrupted) {
             String receivedJson = null;
             try {
                 for (ClientHandler client : clients) {
-                    if (client.getReader().ready()) {
+                    if (!client.getSocket().isClosed() && client.getReader().ready()) {
                         receivedJson = client.getReader().readLine();
                     }
-                        if (receivedJson != null) {
+                    if (receivedJson != null) {
                         respondToReseivedMessage(client, receivedJson);
+                        receivedJson = null;
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("error getting new message");
             }
             try {
                 Thread.sleep(100);
@@ -118,7 +112,7 @@ public class Server {
         Message userListMessage = new Message(MessageType.SERVER_USER_LIST);
         StringBuilder userList = new StringBuilder();
         for (ClientHandler client : clients) {
-            if (client.getName() != null) {
+            if (!client.getSocket().isClosed() && client.getName() != null) {
                 userList.append(client.getName()).append("\n");
             }
         }
@@ -145,13 +139,12 @@ public class Server {
                 logger.info(receivedMessage.getName() + " sent message");
                 break;
             case CLIENT_EXIT:
-                clients.remove(client);
                 toSend = new Message(MessageType.SERVER_MESSAGE);
                 String txt = client.getName() + " left chat";
                 toSend.setText(txt);
+                closeConnection(client);
                 sendToAll(toSend);
                 sendToAll(getUpdatedUserListMessage());
-                closeConnection(client);
                 logger.info(txt);
         }
     }
@@ -162,10 +155,7 @@ public class Server {
         } catch (IOException e) {
             logger.error("error closing connection");
         }
-        clients.remove(client);
     }
-
-
 }
 
 

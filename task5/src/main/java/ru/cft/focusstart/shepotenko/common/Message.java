@@ -3,7 +3,6 @@ package ru.cft.focusstart.shepotenko.common;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 public class Message {
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("[hh:mm:ss] ");
     private MessageType type;
@@ -14,13 +13,6 @@ public class Message {
     public Message(MessageType type) {
         this.type = type;
         this.date = new Date();
-    }
-
-    public Message(MessageType type, String name, String text) {
-        this.type = type;
-        this.date = new Date();
-        this.name = name;
-        this.text = text;
     }
 
     public MessageType getType() {
@@ -55,6 +47,5 @@ public class Message {
             return dateFormat.format(this.date) + this.name + ": " + this.text;
         } else return super.toString();
     }
-
 }
 
