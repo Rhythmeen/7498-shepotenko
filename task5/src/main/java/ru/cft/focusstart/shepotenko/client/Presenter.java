@@ -7,6 +7,7 @@ import ru.cft.focusstart.shepotenko.server.Server;
 
 import java.io.*;
 
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.Properties;
 
@@ -32,12 +33,13 @@ public class Presenter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (this.socket.isConnected()) {
+        if (this.socket != null) {
             model.addMessage("successfully conected to " + host + " " + port);
             messageListenerThread.start();
             return true;
         } else {
             model.addMessage("Connection failed");
+            iview.update();
             return false;
         }
     }

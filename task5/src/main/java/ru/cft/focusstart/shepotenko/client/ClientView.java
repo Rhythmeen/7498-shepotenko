@@ -92,8 +92,8 @@ public class ClientView extends JFrame implements Iview {
         JButton okButton = new JButton("connect!");
         connectDialog.add(okButton);
         okButton.addActionListener(e -> {
-            onTryToConnect(hostField.getText(), portField.getText());
             connectDialog.dispose();
+            onTryToConnect(hostField.getText(), portField.getText());
 
         });
         connectDialog.setVisible(true);
