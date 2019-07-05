@@ -13,28 +13,28 @@ public class Model {
         this.userList = new ArrayList<>();
     }
 
-    public void setNickName(String nickName) {
+    void setNickName(String nickName) {
         this.nickName = nickName;
     }
 
-    public String getNickName() {
+    String getNickName() {
         return nickName;
     }
 
-    public ArrayList<String> getMessages() {
+    ArrayList<String> getMessages() {
         return this.messages;
     }
 
-    public void addMessage(String text) {
+    void addMessage(String text) {
         this.messages.add(text);
     }
 
-    public ArrayList<String> getUsers() {
+    ArrayList<String> getUsers() {
         return this.userList;
     }
 
-    public void updateUserList(String nickNames) {
-        this.userList = new ArrayList<String>(Arrays.asList(nickNames.split("\n")));
+    void updateUserList(String nickNames) {
+        this.userList = new ArrayList<>(Arrays.asList(nickNames.split("\n")));
     }
 
 

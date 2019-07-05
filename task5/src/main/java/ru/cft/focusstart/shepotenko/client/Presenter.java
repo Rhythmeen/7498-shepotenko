@@ -22,26 +22,37 @@ public class Presenter {
     Presenter(Iview iview) {
         this.iview = iview;
         this.model = new Model();
+    }
 
-        Properties properties = new Properties();
-        try (InputStream propertiesStream = Server.class.getClassLoader().getResourceAsStream("server.properties")) {
-            properties.load(propertiesStream);
-            this.socket = new Socket("localhost", Integer.valueOf(properties.getProperty("server.port")));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    boolean connect(String host, String port) {
         try {
+            this.socket = new Socket(host, Integer.valueOf(port));
             this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             this.writer = new PrintWriter(socket.getOutputStream());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        start();
+        if (this.socket.isConnected()) {
+            model.addMessage("successfully conected to " + host + " " + port);
+            messageListenerThread.start();
+            return true;
+        } else {
+            model.addMessage("Connection failed");
+            return false;
+        }
     }
 
-    private void start() {
-        messageListenerThread.start();
+    void disconnect() {
+        Message message = new Message(MessageType.CLIENT_EXIT);
+        writer.println(gson.toJson(message));
+        writer.flush();
+
+        messageListenerThread.interrupt();
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Thread messageListenerThread = new Thread(() -> {
@@ -75,10 +86,6 @@ public class Presenter {
         }
     }
 
-    public Model getModel() {
-        return model;
-    }
-
     void joinWithNewNickName(String nickName) {
         Message message = new Message(MessageType.CLIENT_SET_NAME);
         message.setName(nickName);
@@ -96,17 +103,9 @@ public class Presenter {
         writer.flush();
     }
 
-    void disconnect() {
-        Message message = new Message(MessageType.CLIENT_EXIT);
-        writer.println(gson.toJson(message));
-        writer.flush();
 
-        messageListenerThread.interrupt();
-        try {
-            socket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public Model getModel() {
+        return model;
     }
 }
 

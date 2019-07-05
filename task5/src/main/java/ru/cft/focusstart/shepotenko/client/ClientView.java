@@ -3,13 +3,13 @@ package ru.cft.focusstart.shepotenko.client;
 import javax.swing.*;
 import java.awt.*;
 
-public class View extends JFrame implements Iview {
+public class ClientView extends JFrame implements Iview {
     private JTextArea chatField;
     private JTextArea userList;
     private JTextField newMessageField;
     private Presenter presenter;
 
-    View() {
+    ClientView() {
         this.presenter = new Presenter(this);
 
         this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -58,8 +58,45 @@ public class View extends JFrame implements Iview {
         bottom.add(sendButton);
 
         pack();
+        createConnectDialog();
 
-        createSetNickNameDialog();
+    }
+
+    private void createConnectDialog() {
+        JDialog connectDialog = new JDialog(this, "new connection", true);
+        connectDialog.setSize(new Dimension(300, 200));
+        connectDialog.setResizable(false);
+        connectDialog.setLocationRelativeTo(this);
+        connectDialog.setLayout(new GridLayout(3, 1));
+
+
+        JPanel hostPanel = new JPanel();
+        hostPanel.setLayout(new FlowLayout());
+
+        JPanel portPanel = new JPanel();
+        portPanel.setLayout(new FlowLayout());
+        connectDialog.add(hostPanel);
+        connectDialog.add(portPanel);
+
+        JTextField hostField = new JTextField("localhost", 20);
+        JTextField portField = new JTextField("1111", 20);
+
+        JLabel enterHostLabel = new JLabel("enter host");
+        JLabel enterPortLabel = new JLabel("enter host");
+
+        hostPanel.add(enterHostLabel);
+        hostPanel.add(hostField);
+        portPanel.add(enterPortLabel);
+        portPanel.add(portField);
+
+        JButton okButton = new JButton("connect!");
+        connectDialog.add(okButton);
+        okButton.addActionListener(e -> {
+            onTryToConnect(hostField.getText(), portField.getText());
+            connectDialog.dispose();
+
+        });
+        connectDialog.setVisible(true);
     }
 
     private void createSetNickNameDialog() {
@@ -68,6 +105,7 @@ public class View extends JFrame implements Iview {
         nickNameDialog.setResizable(false);
         nickNameDialog.setLocationRelativeTo(this);
         nickNameDialog.setLayout(new FlowLayout());
+        nickNameDialog.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         JTextField enterNickField = new JTextField("enter your nickname", 20);
         nickNameDialog.add(enterNickField);
@@ -80,8 +118,7 @@ public class View extends JFrame implements Iview {
         nickNameDialog.add(startButton);
 
         nickNameDialog.setVisible(true);
-
-    }
+        }
 
     private void createExitDialog() {
         JDialog exitDialog = new JDialog(this, "are u sure?", true);
@@ -104,6 +141,16 @@ public class View extends JFrame implements Iview {
         exitDialog.add(yesButton);
         exitDialog.add(noButton);
         exitDialog.setVisible(true);
+
+    }
+
+    private void onTryToConnect(String host, String port) {
+        boolean isConnected = presenter.connect(host, port);
+        if (isConnected) {
+            createSetNickNameDialog();
+        } else {
+            createConnectDialog();
+        }
 
     }
 
