@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 
 import com.google.gson.*;
@@ -78,8 +79,13 @@ public class Server {
         while (!interrupted) {
             String receivedJson = null;
             try {
-                for (ClientHandler client : clients) {
-                    if (!client.getSocket().isClosed() && client.getReader().ready()) {
+                Iterator<ClientHandler> it = clients.iterator();
+                while (it.hasNext()) {
+                    ClientHandler client = it.next();
+                    if(client.getSocket().isClosed()) {
+                        it.remove();
+                    }
+                    if (client.getReader().ready()) {
                         receivedJson = client.getReader().readLine();
                     }
                     if (receivedJson != null) {

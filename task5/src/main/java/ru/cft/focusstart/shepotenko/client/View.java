@@ -6,6 +6,7 @@ import java.awt.*;
 public class View extends JFrame implements Iview {
     private JTextArea chatField;
     private JTextArea userList;
+    private JTextField newMessageField;
     private Presenter presenter;
 
     View() {
@@ -41,7 +42,7 @@ public class View extends JFrame implements Iview {
         this.userList.setBackground(Color.gray);
         this.userList.setEditable(false);
 
-        JTextField newMessageField = new JTextField(80);
+        this.newMessageField = new JTextField(80);
 
         JButton sendButton = new JButton("send");
         sendButton.setSize(new Dimension(20, 30));
@@ -112,6 +113,7 @@ public class View extends JFrame implements Iview {
 
     private void onSendMessage(String text) {
         presenter.sendMessage(text);
+        newMessageField.setText("");
     }
 
     private void onExit() {
